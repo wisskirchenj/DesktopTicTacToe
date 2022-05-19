@@ -31,4 +31,8 @@ Have fun!
 
 ## Progress
 
-14.05.22 Project started
+14.05.22 Project started and Stage 1 completed, drawing of the Swing TicTacToe game board.
+
+16.05.22 Stage 2 completed, Human vs Human play mode with Status and Board Model.
+
+18.05.22 Stage 3 completed, automatic Robot mode with SwingWorker Thread and Robot-Human added.

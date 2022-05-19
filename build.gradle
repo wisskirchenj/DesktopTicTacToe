@@ -2,16 +2,16 @@ plugins {
     id 'application'
 }
 
+application {
+    mainClass  = 'de.cofinpro.tictactoe.ApplicationRunner'
+}
+
 group 'de.cofinpro'
-version '1.0-SNAPSHOT'
+version '0.2-SNAPSHOT'
 sourceCompatibility = '18'
 
 repositories {
     mavenCentral()
-}
-
-application {
-    mainClass  = 'de.cofinpro.tictactoe.ApplicationRunner'
 }
 
 dependencies {
