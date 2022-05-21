@@ -2,6 +2,9 @@ package de.cofinpro.tictactoe.model;
 
 import java.util.Random;
 
+/**
+ * Class offering static method(s) for game strategies of the Robots - currently only random..
+ */
 public class Strategy {
 
     private static final Random RANDOM = new Random();

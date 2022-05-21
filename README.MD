@@ -9,7 +9,7 @@ Developer Track, which is needed to complete this track. Moreover it covers a lo
 ## Technology / External Libraries
 
 - POJO Java 18,
-- javax.swing frontend,
+- javax.swing frontend, SwingWorker
 - with Lombok annotation processors, 
 - Apache Log4j SLF4J API binding to Log4j 2 logging and 
 - Junit 5 with 
@@ -22,12 +22,13 @@ The sources of main project tasks (4 stages) and unit, mockito testing.
 ## Program description
 
 A Swing GUI version of the traditional simple Tic Tac Toe game - not more not less :-)
+Game Modes: Human vs Human, Human vs Robot and vice versa and Robot vs Robot.
 
 Have fun!
 
 ## Project completion
 
-[//]: # (Project was completed on xx.0d.22.)
+Project was completed on 21.05.22.
 
 ## Progress
 
@@ -36,3 +37,5 @@ Have fun!
 16.05.22 Stage 2 completed, Human vs Human play mode with Status and Board Model.
 
 18.05.22 Stage 3 completed, automatic Robot mode with SwingWorker Thread and Robot-Human added.
+
+21.05.22 Final stage 4 completed, JMenuBar added and enhanced status messages plus tests.

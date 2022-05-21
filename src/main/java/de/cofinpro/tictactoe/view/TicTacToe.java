@@ -1,17 +1,21 @@
 package de.cofinpro.tictactoe.view;
 
+import de.cofinpro.tictactoe.controller.*;
 import de.cofinpro.tictactoe.model.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
-public class TicTacToe extends JFrame implements ActionListener {
+/**
+ * class representing the Tic-Tac-Toe JFrame. It initializes all UI-components, controls
+ * the game by keeping the StatusModel and implements ActionListener for the cell buttons.
+ */
+public class TicTacToe extends JFrame implements GameControl, ActionListener {
 
-    private JLabel statusLabel;
     private Board board;
-    private JButton startResetButton;
     private final BoardModel boardModel = new BoardModel();
     private final StatusModel statusModel = new StatusModel();
 
@@ -25,33 +29,56 @@ public class TicTacToe extends JFrame implements ActionListener {
         add(createButtonPanel(), BorderLayout.NORTH);
         add(createDecoratedBoard(), BorderLayout.CENTER);
         add(createStatusPanel(), BorderLayout.SOUTH);
+        setJMenuBar(createMenuBar());
         setVisible(true);
+    }
+
+    private JMenuBar createMenuBar() {
+        JMenuBar menubar = new JMenuBar();
+        JMenu menuGame = new JMenu("Game");
+        menuGame.setMnemonic(KeyEvent.VK_G);
+        menuGame.setName("MenuGame");
+        menuGame.add(createMenuItem("Human vs Human", "MenuHumanHuman", 'H', GameMode.HUMAN_HUMAN));
+        menuGame.add(createMenuItem("Human vs Robot", "MenuHumanRobot", 'R', GameMode.HUMAN_ROBOT));
+        menuGame.add(createMenuItem("Robot vs Human", "MenuRobotHuman", 'u', GameMode.ROBOT_HUMAN));
+        menuGame.add(createMenuItem("Robot vs Robot", "MenuRobotRobot", 'o', GameMode.ROBOT_ROBOT));
+        menuGame.addSeparator();
+        JMenuItem menuItemExit = new JMenuItem("Exit", 'x');
+        menuItemExit.addActionListener(e -> System.exit(0));
+        menuGame.add(menuItemExit);
+        menubar.add(menuGame);
+        return menubar;
+    }
+
+    private JMenuItem createMenuItem(String text, String name, char mnemonic, GameMode mode) {
+        JMenuItem menuItem = new JMenuItem(text, mnemonic);
+        menuItem.setName(name);
+        menuItem.addActionListener(new StartMenuListener(this, mode, statusModel));
+        return menuItem;
     }
 
     private Component createButtonPanel() {
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, -10, -10));
-        buttonPanel.add(createButton("Human", "ButtonPlayer1", new PlayerButtonListener(0)));
-        startResetButton = createButton("Start", "ButtonStartReset", new StartResetListener());
+        buttonPanel.add(createPlayerButton(1));
+        StartResetButton startResetButton = new StartResetButton();
+        startResetButton.addActionListener(new StartResetListener(this, statusModel));
+        statusModel.registerListener(startResetButton);
         buttonPanel.add(startResetButton);
-        buttonPanel.add(createButton("Human", "ButtonPlayer2", new PlayerButtonListener(1)));
+        buttonPanel.add(createPlayerButton(2));
         return buttonPanel;
     }
 
-    private JButton createButton(String text, String name, ActionListener actionListener) {
-        JButton button = new JButton(text);
-        button.setName(name);
-        button.addActionListener(actionListener);
-        return button;
-    }
-
-    public void setStatus(String message) {
-        statusLabel.setText(message);
+    private PlayerButton createPlayerButton(int playerNumber) {
+        PlayerButton playerButton = new PlayerButton(playerNumber);
+        playerButton.addActionListener(new PlayerButtonListener(playerNumber - 1, statusModel));
+        statusModel.registerListener(playerButton);
+        return playerButton;
     }
 
     private Component createStatusPanel() {
         JPanel statusPanel = new JPanel();
-        statusLabel = new JLabel(statusModel.getStatus().getStatusMessage());
-        statusLabel.setName("LabelStatus");
+        StatusLabel statusLabel = new StatusLabel();
+        statusModel.registerListener(statusLabel);
         statusPanel.add(statusLabel);
         return statusPanel;
     }
@@ -68,7 +95,22 @@ public class TicTacToe extends JFrame implements ActionListener {
                 board.add(button);
             }
         }
+        board.reset();
         return board;
+    }
+
+    public void resetGame() {
+        statusModel.reset();
+        boardModel.reset();
+        board.reset();
+    }
+
+    public void startGame() {
+        board.setEnabled();
+        statusModel.setStatus(Status.PROGRESS);
+        if (statusModel.getPlayer(0) == Player.ROBOT) {
+            robotPlayerMove();
+        }
     }
 
     private void robotPlayerMove() {
@@ -76,14 +118,12 @@ public class TicTacToe extends JFrame implements ActionListener {
         new RobotMove(button, this).execute();
     }
 
-    void performMove(JButton button) {
+    public void performMove(JButton button) {
         int move = statusModel.incrementAndGetMove();
-        startResetButton.setText("Reset");
-        boardModel.setCellText(button, move % 2 == 1 ? 'X' : 'O');
+        boardModel.setCellText(button, statusModel.getMove() % 2 == 1 ? 'X' : 'O');
         button.setText(boardModel.getCellText(button));
         statusModel.setStatus(boardModel.determineStatus(move));
-        setStatus(statusModel.getStatus().getStatusMessage());
-        if (statusModel.getStatus() == Status.PROGRESS && statusModel.getPlayer(move % 2) == Player.Robot) {
+        if (statusModel.getStatus() == Status.PROGRESS && statusModel.getPlayer(move % 2) == Player.ROBOT) {
             robotPlayerMove();
         }
     }
@@ -91,43 +131,11 @@ public class TicTacToe extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
-        if (statusModel.getPlayer(statusModel.getMove() % 2) != Player.Robot &&
+        if (statusModel.getPlayer(statusModel.getMove() % 2) != Player.ROBOT &&
                 boardModel.getCellText(button).equals(" ") &&
                 statusModel.getStatus() != Status.X_WINS &&
                 statusModel.getStatus() != Status.O_WINS) {
             performMove(button);
-        }
-    }
-
-    class StartResetListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (statusModel.getStatus() != Status.NOT_STARTED) {
-                startResetButton.setText("Start");
-                statusModel.reset();
-                boardModel.reset();
-                board.reset();
-                setStatus(statusModel.getStatus().getStatusMessage());
-            } else if (statusModel.getPlayer(0) == Player.Robot) {
-                startResetButton.setText("Reset");
-                robotPlayerMove();
-            }
-        }
-    }
-
-    class PlayerButtonListener implements ActionListener {
-
-        private final int player;
-
-        public PlayerButtonListener(int player) {
-            this.player = player;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            statusModel.togglePlayer(player);
-            ((JButton) e.getSource()).setText(statusModel.getPlayer(player).name());
         }
     }
 }

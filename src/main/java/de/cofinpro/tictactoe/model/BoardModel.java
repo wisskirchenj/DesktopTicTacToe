@@ -1,9 +1,18 @@
 package de.cofinpro.tictactoe.model;
 
 import javax.swing.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class BoardModel {
+/**
+ * the board model class behind the tic-tac-toe board, that stores the state of all game cells (as char).
+ * besides various getters and setters, it offers a method to determine the game's status (WIN, DRAW, PROGRESS).
+ */
+public class BoardModel implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2405172041950251811L;
 
     private final char[][] cells = new char[3][3];
 
@@ -34,6 +43,11 @@ public class BoardModel {
         return "Button" + (char) ('A' + column - 1) + row;
     }
 
+    /**
+     * checks the cell contents to check, if a win took place or a draw or nothing yet.
+     * @param move the number of the move to decide on draw or game in progress
+     * @return the Status object of the game
+     */
     public Status determineStatus(int move) {
         for (int i = 0; i < 3; i++) {
             if (cells[0][i] == cells[1][i] && cells[1][i] == cells[2][i]
