@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 
 /**
  * class representing the Tic-Tac-Toe JFrame. It initializes all UI-components, controls
@@ -44,7 +45,7 @@ public class TicTacToe extends JFrame implements GameControl, ActionListener {
         menuGame.add(createMenuItem("Robot vs Robot", "MenuRobotRobot", 'o', GameMode.ROBOT_ROBOT));
         menuGame.addSeparator();
         JMenuItem menuItemExit = new JMenuItem("Exit", 'x');
-        menuItemExit.addActionListener(e -> System.exit(0));
+        menuItemExit.addActionListener(e -> dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
         menuGame.add(menuItemExit);
         menubar.add(menuGame);
         return menubar;
